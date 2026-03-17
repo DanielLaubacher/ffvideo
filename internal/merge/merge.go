@@ -84,7 +84,7 @@ func Run(ctx context.Context, cfg *Config) error {
 	// Count entries for status message
 	data, _ := os.ReadFile(concatFile)
 	count := 0
-	for _, line := range strings.Split(string(data), "\n") {
+	for line := range strings.SplitSeq(string(data), "\n") {
 		if strings.HasPrefix(line, "file ") {
 			count++
 		}
@@ -158,7 +158,7 @@ func buildConcatFromListFile(listFile, concatFile string) error {
 	}
 
 	var lines []string
-	for _, line := range strings.Split(string(data), "\n") {
+	for line := range strings.SplitSeq(string(data), "\n") {
 		line = strings.TrimSpace(line)
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue

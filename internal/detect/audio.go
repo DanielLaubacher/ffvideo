@@ -22,7 +22,7 @@ func DetectAudio() *ffmpeg.AudioInput {
 	}
 
 	re := regexp.MustCompile(`^card (\d+):.*device (\d+):`)
-	for _, line := range strings.Split(string(out), "\n") {
+	for line := range strings.SplitSeq(string(out), "\n") {
 		m := re.FindStringSubmatch(line)
 		if m != nil {
 			return &ffmpeg.AudioInput{

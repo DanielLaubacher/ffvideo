@@ -1,5 +1,7 @@
 package ffmpeg
 
+import "strings"
+
 import "fmt"
 
 // AudioInput represents an ffmpeg audio input source.
@@ -183,10 +185,10 @@ func DrawText(a DrawTextArgs) []string {
 
 // ConvertArgs configures format conversion with output-type-aware defaults.
 type ConvertArgs struct {
-	Input   string
-	Output  string
-	Width   int // 0 = keep original
-	FPS     int // 0 = keep original
+	Input  string
+	Output string
+	Width  int // 0 = keep original
+	FPS    int // 0 = keep original
 }
 
 // GIF returns ffmpeg args for single-pass palette-based GIF conversion.
@@ -245,14 +247,14 @@ func buildScaleFPS(width, fps int) string {
 		// -2 maintains aspect ratio and rounds to even; lanczos for sharp downscaling
 		parts = append(parts, fmt.Sprintf("scale=%d:-2:flags=lanczos", width))
 	}
-	result := ""
+	var result strings.Builder
 	for i, p := range parts {
 		if i > 0 {
-			result += ","
+			result.WriteString(",")
 		}
-		result += p
+		result.WriteString(p)
 	}
-	return result
+	return result.String()
 }
 
 // ConcatArgs configures video concatenation.
@@ -280,13 +282,13 @@ func ConcatFilter(inputs []string, output string) []string {
 		args = append(args, "-i", f)
 	}
 
-	var filter string
+	var filter strings.Builder
 	for i := range inputs {
-		filter += fmt.Sprintf("[%d:v][%d:a]", i, i)
+		filter.WriteString(fmt.Sprintf("[%d:v][%d:a]", i, i))
 	}
-	filter += fmt.Sprintf("concat=n=%d:v=1:a=1[outv][outa]", len(inputs))
+	filter.WriteString(fmt.Sprintf("concat=n=%d:v=1:a=1[outv][outa]", len(inputs)))
 
-	args = append(args, "-filter_complex", filter)
+	args = append(args, "-filter_complex", filter.String())
 	args = append(args, "-map", "[outv]", "-map", "[outa]")
 	args = append(args, "-c:v", "libx264", "-c:a", "aac", "-movflags", "+faststart")
 	args = append(args, output)
